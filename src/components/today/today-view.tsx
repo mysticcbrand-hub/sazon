@@ -50,11 +50,6 @@ function MealCard({ meal, index }: { meal: MealOption; index: number }) {
               <Flame style={{ width: 14, height: 14 }} /> {meal.protein_g}g prot
             </span>
           )}
-          {meal.calories > 0 && (
-            <span style={{ padding: "6px 12px", borderRadius: "var(--radius-full)", background: "var(--color-accent-warm-light)", color: "var(--color-accent-warm)", fontSize: 13, fontWeight: 600 }}>
-              {meal.calories} kcal
-            </span>
-          )}
           {meal.prep_time_min > 0 && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: "var(--radius-full)", background: "var(--color-bg-secondary)", color: "var(--color-text-secondary)", fontSize: 13, fontWeight: 600 }}>
               <Clock style={{ width: 14, height: 14 }} /> {meal.prep_time_min} min
@@ -156,7 +151,7 @@ function MealCard({ meal, index }: { meal: MealOption; index: number }) {
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
           <span style={{ fontSize: 13, color: "var(--color-accent)", fontWeight: 600 }}>{meal.protein_g}g prot</span>
           <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>·</span>
-          <span style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>{meal.calories || "~400"} kcal</span>
+          <span style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>{meal.prep_time_min} min</span>
         </div>
       </div>
     </motion.button>
