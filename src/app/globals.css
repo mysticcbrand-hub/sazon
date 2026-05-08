@@ -1,84 +1,222 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════
+   SAZÓN DESIGN SYSTEM — Single source of truth
+   Inspired by: Opal, iOS Control Center, Apple Health, Gentler Streak
+   ═══════════════════════════════════════════════════════════════ */
+
 @theme {
-  --color-terracotta: #E8603C;
-  --color-terracotta-light: #F28B6E;
-  --color-terracotta-dark: #C94E2D;
-  --color-sage: #4A7C59;
-  --color-sage-light: #6B9E7A;
-  --color-sage-dark: #3A6247;
-  --color-cream: #FDF6EC;
-  --color-cream-dark: #F5EBD8;
-  --color-charcoal: #1C1C1C;
-  --color-charcoal-light: #2D2D2D;
-  --color-primary: #E8603C;
-  --color-primary-light: #F28B6E;
-  --color-primary-dark: #C94E2D;
-  --color-secondary: #4A7C59;
-  --color-secondary-light: #6B9E7A;
-  --color-secondary-dark: #3A6247;
-  --color-background: #FDF6EC;
-  --color-surface: #FFFFFF;
-  --color-surface-elevated: #FFFFFF;
-  --color-text-primary: #1C1C1C;
-  --color-text-secondary: #6B7280;
-  --color-text-muted: #9CA3AF;
-  --color-expiry-ok: #22C55E;
-  --color-expiry-warn: #F59E0B;
-  --color-expiry-danger: #EF4444;
+  --color-accent: #2D6A4F;
+  --color-accent-light: #E8F5EE;
+  --color-accent-warm: #F4845F;
+  --color-accent-dark: #1B4332;
 }
 
-/* ═══════════════════════════════════════════
-   SAFE AREA — Systemic CSS custom properties
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════
+   STEP 1 — COLOR TOKENS
+   ═══════════════════════════════ */
 :root {
-  --sat: env(safe-area-inset-top, 0px);
-  --sab: env(safe-area-inset-bottom, 0px);
-  --sal: env(safe-area-inset-left, 0px);
-  --sar: env(safe-area-inset-right, 0px);
-  /* Tab bar height: 56px content + safe-area-bottom */
-  --tab-bar-h: calc(56px + var(--sab));
-  /* Design tokens */
+  /* Backgrounds */
+  --color-bg-primary: #FAFAF8;
+  --color-bg-secondary: #F2F1EE;
+  --color-bg-tertiary: #E8E7E4;
+  --color-bg-glass: rgba(255,255,255,0.72);
+  --color-bg-glass-strong: rgba(255,255,255,0.88);
+
+  /* Text */
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #6B6B6B;
+  --color-text-tertiary: #ADADAD;
+
+  /* Accent */
+  --color-accent: #2D6A4F;
+  --color-accent-light: #E8F5EE;
+  --color-accent-warm: #F4845F;
+  --color-accent-warm-light: rgba(244,132,95,0.12);
+
+  /* Structure */
+  --color-separator: rgba(0,0,0,0.08);
+  --color-shadow: rgba(0,0,0,0.06);
+
+  /* STEP 2 — TYPOGRAPHY */
+  --font-display: -apple-system, "SF Pro Display", system-ui, sans-serif;
+  --font-body: -apple-system, "SF Pro Text", system-ui, sans-serif;
+
+  /* STEP 3 — SPACING (multiples of 4) */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px;  --space-10: 40px;
+  --space-12: 48px; --space-16: 64px;
+
+  /* STEP 4 — RADII */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
-  --radius-pill: 999px;
-  --shadow-card: 0 2px 12px rgba(0,0,0,0.08);
-  --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.12);
-  --shadow-sheet: 0 -4px 24px rgba(0,0,0,0.15);
-  --shadow-fab: 0 4px 16px rgba(232,96,60,0.4);
+  --radius-full: 9999px;
+
+  /* SAFE AREA */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+
+  /* Layout */
+  --header-height: 44px;
+  --tab-bar-height: 49px;
+  --tab-bar-total: calc(var(--tab-bar-height) + var(--sab));
+
+  /* Shadows */
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  --shadow-card-hover: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06);
+  --shadow-sheet: 0 -2px 20px rgba(0,0,0,0.08);
+  --shadow-fab: 0 4px 16px rgba(45,106,79,0.35);
 }
 
-/* Dark mode overrides */
+/* ═══════════════════════════════
+   DARK MODE — Automatic
+   ═══════════════════════════════ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-background: #121212;
-    --color-surface: #1E1E1E;
-    --color-surface-elevated: #2A2A2A;
-    --color-text-primary: #F5F5F5;
-    --color-text-secondary: #A0A0A0;
-    --color-text-muted: #6B6B6B;
-    --color-cream: #121212;
-    --color-cream-dark: #1A1A1A;
-    --shadow-card: 0 2px 12px rgba(0,0,0,0.3);
-    --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.4);
-    --shadow-sheet: 0 -4px 24px rgba(0,0,0,0.5);
+    --color-bg-primary: #0F0F0E;
+    --color-bg-secondary: #1A1A18;
+    --color-bg-tertiary: #242422;
+    --color-bg-glass: rgba(28,28,26,0.80);
+    --color-bg-glass-strong: rgba(28,28,26,0.92);
+    --color-text-primary: #F5F5F0;
+    --color-text-secondary: #8A8A82;
+    --color-text-tertiary: #5A5A54;
+    --color-accent: #52B788;
+    --color-accent-light: rgba(82,183,136,0.12);
+    --color-accent-warm: #F4845F;
+    --color-accent-warm-light: rgba(244,132,95,0.10);
+    --color-separator: rgba(255,255,255,0.08);
+    --color-shadow: rgba(0,0,0,0.30);
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+    --shadow-card-hover: 0 2px 8px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.2);
+    --shadow-sheet: 0 -2px 20px rgba(0,0,0,0.4);
+    --shadow-fab: 0 4px 16px rgba(82,183,136,0.3);
   }
 }
 
 [data-theme="dark"] {
-  --color-background: #121212;
-  --color-surface: #1E1E1E;
-  --color-surface-elevated: #2A2A2A;
-  --color-text-primary: #F5F5F5;
-  --color-text-secondary: #A0A0A0;
-  --color-text-muted: #6B6B6B;
-  --color-cream: #121212;
-  --color-cream-dark: #1A1A1A;
-  --shadow-card: 0 2px 12px rgba(0,0,0,0.3);
-  --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.4);
-  --shadow-sheet: 0 -4px 24px rgba(0,0,0,0.5);
+  --color-bg-primary: #0F0F0E;
+  --color-bg-secondary: #1A1A18;
+  --color-bg-tertiary: #242422;
+  --color-bg-glass: rgba(28,28,26,0.80);
+  --color-bg-glass-strong: rgba(28,28,26,0.92);
+  --color-text-primary: #F5F5F0;
+  --color-text-secondary: #8A8A82;
+  --color-text-tertiary: #5A5A54;
+  --color-accent: #52B788;
+  --color-accent-light: rgba(82,183,136,0.12);
+  --color-accent-warm: #F4845F;
+  --color-accent-warm-light: rgba(244,132,95,0.10);
+  --color-separator: rgba(255,255,255,0.08);
+  --color-shadow: rgba(0,0,0,0.30);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+  --shadow-card-hover: 0 2px 8px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.2);
+  --shadow-sheet: 0 -2px 20px rgba(0,0,0,0.4);
+  --shadow-fab: 0 4px 16px rgba(82,183,136,0.3);
+}
+
+/* ═══════════════════════════════
+   STEP 5 — GLASS MORPHISM SYSTEM
+   ═══════════════════════════════ */
+
+/* Level 1: Subtle — section backgrounds */
+.glass-subtle {
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  border: 0.5px solid rgba(255,255,255,0.20);
+}
+
+/* Level 2: Card — primary cards */
+.glass-card {
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(20px) saturate(1.6) brightness(1.02);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6) brightness(1.02);
+  border: 0.5px solid rgba(255,255,255,0.25);
+  box-shadow: 0 2px 20px var(--color-shadow),
+              inset 0 0.5px 0 rgba(255,255,255,0.30);
+}
+
+/* Level 3: Strong — modals, tab bar */
+.glass-strong {
+  background: var(--color-bg-glass-strong);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border-top: 0.5px solid rgba(255,255,255,0.20);
+  box-shadow: 0 -1px 0 var(--color-separator);
+}
+
+/* Dark mode glass adjustments */
+[data-theme="dark"] .glass-subtle,
+[data-theme="dark"] .glass-card {
+  border-color: rgba(255,255,255,0.06);
+  box-shadow: 0 2px 20px var(--color-shadow),
+              inset 0 0.5px 0 rgba(255,255,255,0.06);
+}
+[data-theme="dark"] .glass-strong {
+  border-top-color: rgba(255,255,255,0.06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .glass-subtle,
+  :root:not([data-theme="light"]) .glass-card {
+    border-color: rgba(255,255,255,0.06);
+    box-shadow: 0 2px 20px var(--color-shadow),
+                inset 0 0.5px 0 rgba(255,255,255,0.06);
+  }
+  :root:not([data-theme="light"]) .glass-strong {
+    border-top-color: rgba(255,255,255,0.06);
+  }
+}
+
+/* ═══════════════════════════════
+   GLOBAL ANIMATIONS
+   ═══════════════════════════════ */
+
+/* Screen/tab enter */
+@keyframes screen-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Card stagger entry */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--color-bg-secondary) 25%,
+    var(--color-bg-tertiary) 50%,
+    var(--color-bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite ease-in-out;
+  border-radius: var(--radius-md);
+}
+
+/* Button shimmer loading state */
+@keyframes btn-shimmer {
+  from { background-position: -100% 0; }
+  to   { background-position: 200% 0; }
+}
+
+.btn-loading {
+  background: linear-gradient(90deg,
+    var(--color-accent) 0%,
+    rgba(82,183,136,0.7) 50%,
+    var(--color-accent) 100%);
+  background-size: 200% 100%;
+  animation: btn-shimmer 1.8s infinite ease-in-out;
 }
 
 /* ═══════════════════════════════
@@ -91,12 +229,14 @@ html {
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--color-background);
+  font-family: var(--font-body);
+  background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
-  line-height: 1.6;
+  line-height: 1.5;
   min-height: 100dvh;
   overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ═══════════════════════════════
@@ -104,59 +244,31 @@ body {
    ═══════════════════════════════ */
 .safe-top { padding-top: var(--sat); }
 .safe-bottom { padding-bottom: var(--sab); }
-.safe-left { padding-left: var(--sal); }
-.safe-right { padding-right: var(--sar); }
 
-/* Standalone PWA mode — extra safe area handling */
 @media (display-mode: standalone) {
   .safe-top { padding-top: max(var(--sat), 20px); }
 }
 
 /* ═══════════════════════════════
-   SCROLLBAR & OVERFLOW
+   SCROLLBAR HIDE
    ═══════════════════════════════ */
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 
 /* ═══════════════════════════════
-   SKELETON SHIMMER
+   TOUCH INTERACTION
    ═══════════════════════════════ */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
+.tap-target { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
 
-.skeleton {
-  background: linear-gradient(90deg,
-    var(--color-surface) 25%,
-    var(--color-surface-elevated) 50%,
-    var(--color-surface) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: var(--radius-md);
-}
+/* Press scale — applied via framer motion whileTap but also available as CSS */
+.press-scale { transition: transform 80ms ease-out; }
+.press-scale:active { transform: scale(0.96); }
 
 /* ═══════════════════════════════
-   TOUCH & INTERACTION
+   TYPOGRAPHY UTILITIES
    ═══════════════════════════════ */
-.tap-target {
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Press feedback for interactive cards */
-.press-scale {
-  transition: transform 0.15s ease;
-}
-.press-scale:active {
-  transform: scale(0.97);
-}
+.text-display { font-family: var(--font-display); letter-spacing: -0.04em; }
+.text-body { font-family: var(--font-body); letter-spacing: 0; }
 
 /* ═══════════════════════════════
    ACCESSIBILITY
@@ -169,14 +281,10 @@ body {
   }
 }
 
-::selection {
-  background-color: var(--color-primary);
-  color: white;
-}
+::selection { background-color: var(--color-accent); color: white; }
 
-/* Focus visible ring for keyboard nav */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }

@@ -9,10 +9,9 @@ import { TodayView } from "@/components/today/today-view";
 import { PantryView } from "@/components/pantry/pantry-view";
 import { RecipesView } from "@/components/recipes/recipes-view";
 import { FamilyView } from "@/components/family/family-view";
-import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 
+/* Layout root — 100dvh container with safe area boundaries */
 const TAB_COMPONENTS = {
   hoy: TodayView,
   despensa: PantryView,
@@ -20,79 +19,43 @@ const TAB_COMPONENTS = {
   familia: FamilyView,
 } as const;
 
-const slideVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 80 : -80,
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction < 0 ? 80 : -80,
-    opacity: 0,
-  }),
+const screenTransition = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -4 },
+  transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] },
 };
 
-function AppShellContent() {
-  const { activeTab, setActiveTab } = useUIStore();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  // Sync tab from URL on mount
-  useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam && tabParam in TAB_COMPONENTS) {
-      setActiveTab(tabParam as keyof typeof TAB_COMPONENTS);
-    }
-  }, [searchParams, setActiveTab]);
-
-  // Update URL when tab changes
-  useEffect(() => {
-    const current = new URLSearchParams(window.location.search);
-    if (current.get("tab") !== activeTab) {
-      router.replace(`/?tab=${activeTab}`, { scroll: false });
-    }
-  }, [activeTab, router]);
-
-  const tabOrder = ["hoy", "despensa", "recetario", "familia"];
-  const currentIndex = tabOrder.indexOf(activeTab);
+function AppShell() {
+  const { activeTab } = useUIStore();
   const ActiveComponent = TAB_COMPONENTS[activeTab];
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--color-background)]">
+    <div
+      className="min-h-[100dvh]"
+      style={{ background: "var(--color-bg-primary)" }}
+    >
       {/* Desktop sidebar */}
       <Sidebar />
 
-      {/* Main content — safe-area top padding for iOS PWA */}
-      <main className="md:ml-[240px] pb-24 md:pb-8">
-        <div className="max-w-2xl mx-auto px-5 pt-[max(var(--sat),24px)] md:pt-8">
-          <AnimatePresence mode="wait" custom={currentIndex}>
-            <motion.div
-              key={activeTab}
-              custom={currentIndex}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                type: "spring",
-                stiffness: 300,
-                damping: 30,
-                duration: 0.25,
-              }}
-            >
+      {/* Main content area — bounded by safe area top and tab bar bottom */}
+      <main className="md:ml-[240px]" style={{ paddingBottom: "var(--tab-bar-total)" }}>
+        <div
+          className="max-w-2xl mx-auto"
+          style={{ padding: "max(var(--sat), 20px) var(--space-5) var(--space-4) var(--space-5)" }}
+        >
+          <AnimatePresence mode="wait">
+            <motion.div key={activeTab} {...screenTransition}>
               <ActiveComponent />
             </motion.div>
           </AnimatePresence>
         </div>
       </main>
 
-      {/* Mobile tab bar */}
+      {/* Tab bar — fixed bottom, glass-strong */}
       <TabBar />
 
-      {/* Sheet modal (global) */}
+      {/* Global sheet modal */}
       <SheetModal />
     </div>
   );
@@ -100,12 +63,25 @@ function AppShellContent() {
 
 export default function HomePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-[100dvh] bg-[var(--color-background)] flex items-center justify-center">
-        <div className="w-10 h-10 border-3 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
-      </div>
-    }>
-      <AppShellContent />
+    <Suspense
+      fallback={
+        <div
+          className="min-h-[100dvh] flex items-center justify-center"
+          style={{ background: "var(--color-bg-primary)" }}
+        >
+          <div
+            className="rounded-full animate-spin"
+            style={{
+              width: 32,
+              height: 32,
+              border: "3px solid var(--color-bg-tertiary)",
+              borderTopColor: "var(--color-accent)",
+            }}
+          />
+        </div>
+      }
+    >
+      <AppShell />
     </Suspense>
   );
 }

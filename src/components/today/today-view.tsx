@@ -1,83 +1,79 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Sparkles,
-  Clock,
-  Flame,
-  ChevronRight,
-  Wand2,
-  ShoppingCart,
-  RefreshCw,
-  Check,
-  Loader2,
-  ChefHat,
-} from "lucide-react";
+import { Sparkles, Clock, Flame, ChevronRight, Wand2, ShoppingCart, RefreshCw, Check, Loader2, ChefHat } from "lucide-react";
 import { useFamily } from "@/lib/hooks/use-family";
 import { useDailyMenu } from "@/lib/hooks/use-daily-menu";
 import { useUIStore } from "@/lib/stores/ui-store";
 import { useAI } from "@/lib/hooks/use-ai";
-import { DIFFICULTY_CONFIG } from "@/types/database";
 import type { MealOption } from "@/types/database";
 import { useState, useCallback } from "react";
 
-const mealLabels: Record<string, string> = {
-  breakfast: "🌅 Desayuno",
-  lunch: "☀️ Comida",
-  dinner: "🌙 Cena",
+/* Today view — hero screen, Opal-inspired minimal layout */
+
+const DIFF: Record<string, { label: string; emoji: string }> = {
+  easy: { label: "Fácil", emoji: "⚡" },
+  medium: { label: "Media", emoji: "🔥" },
+  hard: { label: "Elaborada", emoji: "👨‍🍳" },
 };
 
 function MealCard({ meal, index }: { meal: MealOption; index: number }) {
   const { openSheet, closeSheet } = useUIStore();
-  const diff = DIFFICULTY_CONFIG[meal.difficulty || "medium"];
   const [cooked, setCooked] = useState(false);
+  const diff = DIFF[meal.difficulty || "medium"];
 
   const handleCook = useCallback(() => {
     setCooked(true);
-    setTimeout(() => closeSheet(), 1500);
+    setTimeout(() => closeSheet(), 1200);
   }, [closeSheet]);
 
   const openDetail = useCallback(() => {
     openSheet(
-      <div className="space-y-5">
-        {/* Title */}
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-text-primary)]">
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+        {/* Title block */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+          <h2 className="text-display" style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.03em", color: "var(--color-text-primary)" }}>
             {meal.title}
           </h2>
-          <p className="text-[var(--color-text-secondary)] text-sm leading-relaxed">{meal.description}</p>
+          <p style={{ fontSize: 15, lineHeight: 1.5, color: "var(--color-text-secondary)" }}>{meal.description}</p>
+          {(meal as any).por_que_hoy && (
+            <p style={{ fontSize: 13, color: "var(--color-accent)", fontWeight: 500, fontStyle: "italic" }}>
+              💡 {(meal as any).por_que_hoy}
+            </p>
+          )}
         </div>
 
-        {/* Macros bar */}
-        <div className="flex gap-2">
+        {/* Macro pills */}
+        <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
           {meal.protein_g > 0 && (
-            <span className="flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-pill)] bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-semibold">
-              <Flame className="w-3.5 h-3.5" /> {meal.protein_g}g prot
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: "var(--radius-full)", background: "var(--color-accent-light)", color: "var(--color-accent)", fontSize: 13, fontWeight: 600 }}>
+              <Flame style={{ width: 14, height: 14 }} /> {meal.protein_g}g prot
+            </span>
+          )}
+          {meal.calories > 0 && (
+            <span style={{ padding: "6px 12px", borderRadius: "var(--radius-full)", background: "var(--color-accent-warm-light)", color: "var(--color-accent-warm)", fontSize: 13, fontWeight: 600 }}>
+              {meal.calories} kcal
             </span>
           )}
           {meal.prep_time_min > 0 && (
-            <span className="flex items-center gap-1 px-3 py-1.5 rounded-[var(--radius-pill)] bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] text-xs font-semibold">
-              <Clock className="w-3.5 h-3.5" /> {meal.prep_time_min} min
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "6px 12px", borderRadius: "var(--radius-full)", background: "var(--color-bg-secondary)", color: "var(--color-text-secondary)", fontSize: 13, fontWeight: 600 }}>
+              <Clock style={{ width: 14, height: 14 }} /> {meal.prep_time_min} min
             </span>
           )}
-          <span className="px-3 py-1.5 rounded-[var(--radius-pill)] bg-[var(--color-text-muted)]/10 text-xs font-semibold">
+          <span style={{ padding: "6px 12px", borderRadius: "var(--radius-full)", background: "var(--color-bg-secondary)", fontSize: 13, fontWeight: 500 }}>
             {diff.emoji} {diff.label}
           </span>
         </div>
 
         {/* Ingredients */}
-        {meal.recipe && meal.recipe.ingredients && (
-          <div className="space-y-2">
-            <h3 className="font-semibold text-[var(--color-text-primary)] text-sm flex items-center gap-2">
-              🧾 Ingredientes
-            </h3>
-            <div className="bg-[var(--color-background)] rounded-[var(--radius-md)] p-3 space-y-1.5">
+        {meal.recipe?.ingredients && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)" }}>Ingredientes</h3>
+            <div style={{ background: "var(--color-bg-secondary)", borderRadius: "var(--radius-md)", padding: "var(--space-3)" }}>
               {meal.recipe.ingredients.map((ing, i) => (
-                <div key={i} className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--color-text-primary)]">{ing.name}</span>
-                  <span className="text-[var(--color-text-muted)] text-xs">
-                    {ing.quantity} {ing.unit}
-                  </span>
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: i < meal.recipe!.ingredients.length - 1 ? "0.5px solid var(--color-separator)" : "none" }}>
+                  <span style={{ fontSize: 15, color: "var(--color-text-primary)" }}>{ing.name}</span>
+                  <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>{ing.quantity} {ing.unit}</span>
                 </div>
               ))}
             </div>
@@ -85,46 +81,39 @@ function MealCard({ meal, index }: { meal: MealOption; index: number }) {
         )}
 
         {/* Steps */}
-        {meal.recipe && meal.recipe.steps && (
-          <div className="space-y-2">
-            <h3 className="font-semibold text-[var(--color-text-primary)] text-sm flex items-center gap-2">
-              👨‍🍳 Preparación
-            </h3>
-            <div className="space-y-3">
-              {meal.recipe.steps.map((step, i) => (
-                <div key={i} className="flex gap-3">
-                  <span className="shrink-0 w-7 h-7 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center font-bold text-xs">
-                    {step.order || i + 1}
-                  </span>
-                  <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed pt-1">
-                    {step.text}
-                  </p>
-                </div>
-              ))}
-            </div>
+        {meal.recipe?.steps && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)" }}>Preparación</h3>
+            {meal.recipe.steps.map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                style={{ display: "flex", gap: "var(--space-3)" }}
+              >
+                <span style={{ flexShrink: 0, width: 28, height: 28, borderRadius: "var(--radius-full)", background: "var(--color-accent-light)", color: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>
+                  {step.order || i + 1}
+                </span>
+                <p style={{ fontSize: 15, lineHeight: 1.5, color: "var(--color-text-secondary)", paddingTop: 4 }}>{step.text}</p>
+              </motion.div>
+            ))}
           </div>
         )}
 
-        {/* Cook button */}
+        {/* Cook button — primary action */}
         <motion.button
-          whileTap={{ scale: 0.96 }}
+          whileTap={{ scale: 0.97 }}
           onClick={handleCook}
           disabled={cooked}
-          className={`w-full h-13 rounded-[var(--radius-lg)] font-semibold text-sm flex items-center justify-center gap-2 transition-all ${
-            cooked
-              ? "bg-[var(--color-secondary)] text-white"
-              : "bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] text-white"
-          }`}
+          style={{
+            width: "100%", height: 54, borderRadius: "var(--radius-md)", border: "none", cursor: "pointer",
+            background: cooked ? "#22C55E" : "var(--color-accent)",
+            color: "white", fontSize: 17, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            opacity: cooked ? 1 : 1, transition: "background 200ms",
+          }}
         >
-          {cooked ? (
-            <>
-              <Check className="w-5 h-5" /> ¡Registrado! Buen provecho 🎉
-            </>
-          ) : (
-            <>
-              <ChefHat className="w-5 h-5" /> Voy a cocinar esto
-            </>
-          )}
+          {cooked ? <><Check style={{ width: 20, height: 20 }} /> ¡Buen provecho!</> : <><ChefHat style={{ width: 20, height: 20 }} /> Voy a cocinar esto</>}
         </motion.button>
       </div>
     );
@@ -132,159 +121,132 @@ function MealCard({ meal, index }: { meal: MealOption; index: number }) {
 
   return (
     <motion.button
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06, type: "spring", stiffness: 300, damping: 25 }}
+      initial={{ opacity: 0, y: 16, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay: index * 0.05, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       whileTap={{ scale: 0.97 }}
       onClick={openDetail}
-      className="shrink-0 w-[280px] h-[180px] rounded-[var(--radius-lg)] overflow-hidden relative group text-left"
+      className="glass-card"
+      style={{
+        flexShrink: 0, width: 272, borderRadius: "var(--radius-lg)", overflow: "hidden",
+        textAlign: "left", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column",
+      }}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/80 to-[var(--color-secondary)]/70" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <h3 className="text-white font-semibold text-base leading-tight line-clamp-2 drop-shadow-sm">
-          {meal.title}
-        </h3>
-        <div className="flex items-center gap-2 mt-2">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-pill)] bg-white/20 backdrop-blur-sm text-white text-xs font-medium">
-            <Flame className="w-3 h-3" /> {meal.protein_g}g prot
+      {/* Color gradient top — instead of image */}
+      <div style={{ height: 100, background: `linear-gradient(135deg, var(--color-accent), var(--color-accent-warm))`, position: "relative" }}>
+        {meal.missing_ingredients && meal.missing_ingredients.length > 0 && (
+          <span style={{ position: "absolute", top: 8, right: 8, padding: "3px 8px", borderRadius: "var(--radius-full)", background: "var(--color-accent-warm)", color: "white", fontSize: 10, fontWeight: 700 }}>
+            Faltan {meal.missing_ingredients.length}
           </span>
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-pill)] bg-white/20 backdrop-blur-sm text-white text-xs font-medium">
-            <Clock className="w-3 h-3" /> {meal.prep_time_min}min
+        )}
+        <div style={{ position: "absolute", bottom: 8, left: 12, display: "flex", gap: 6 }}>
+          <span style={{ padding: "3px 8px", borderRadius: "var(--radius-full)", background: "rgba(255,255,255,0.25)", backdropFilter: "blur(8px)", color: "white", fontSize: 11, fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}>
+            <Clock style={{ width: 11, height: 11 }} /> {meal.prep_time_min}min
           </span>
-          <span className="text-xs">{diff.emoji}</span>
+          <span style={{ padding: "3px 8px", borderRadius: "var(--radius-full)", background: "rgba(255,255,255,0.25)", backdropFilter: "blur(8px)", color: "white", fontSize: 11, fontWeight: 600 }}>
+            {diff.emoji}
+          </span>
         </div>
       </div>
-
-      {meal.missing_ingredients && meal.missing_ingredients.length > 0 && (
-        <div className="absolute top-3 right-3 px-2 py-0.5 rounded-[var(--radius-pill)] bg-[var(--color-expiry-warn)] text-white text-[10px] font-semibold">
-          Faltan {meal.missing_ingredients.length}
+      {/* Content */}
+      <div style={{ padding: "var(--space-3) var(--space-4) var(--space-4)" }}>
+        <h3 className="text-display" style={{ fontSize: 17, fontWeight: 600, color: "var(--color-text-primary)", lineHeight: 1.3, letterSpacing: "-0.01em", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+          {meal.title}
+        </h3>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+          <span style={{ fontSize: 13, color: "var(--color-accent)", fontWeight: 600 }}>{meal.protein_g}g prot</span>
+          <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>·</span>
+          <span style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>{meal.calories || "~400"} kcal</span>
         </div>
-      )}
+      </div>
     </motion.button>
   );
 }
 
 function MealSection({ label, meals }: { label: string; meals: MealOption[] }) {
   return (
-    <div className="space-y-3">
-      <h2 className="text-lg font-semibold text-[var(--color-text-primary)] px-1">{label}</h2>
-      {meals.length > 0 ? (
-        <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar -mx-5 px-5">
-          {meals.map((meal, i) => (
-            <MealCard key={`${meal.title}-${i}`} meal={meal} index={i} />
-          ))}
-        </div>
-      ) : (
-        <SkeletonCards />
-      )}
-    </div>
-  );
-}
-
-function SkeletonCards() {
-  return (
-    <div className="flex gap-3 overflow-hidden -mx-5 px-5">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="shrink-0 w-[280px] h-[180px] rounded-[var(--radius-lg)] skeleton" />
-      ))}
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)" }}>
+      <h2 className="text-display" style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em", color: "var(--color-text-primary)" }}>{label}</h2>
+      <div className="hide-scrollbar" style={{ display: "flex", gap: "var(--space-3)", overflowX: "auto", margin: "0 calc(var(--space-5) * -1)", padding: "0 var(--space-5)", paddingBottom: "var(--space-2)" }}>
+        {meals.map((meal, i) => <MealCard key={`${meal.title}-${i}`} meal={meal} index={i} />)}
+      </div>
     </div>
   );
 }
 
 export function TodayView() {
   const { family } = useFamily();
-  const { menu, isLoading } = useDailyMenu();
+  const { menu } = useDailyMenu();
   const { callAI, loading: aiLoading, error: aiError } = useAI();
   const { openSheet } = useUIStore();
   const [menuData, setMenuData] = useState<{ lunch: MealOption[]; dinner: MealOption[] } | null>(null);
   const [generating, setGenerating] = useState(false);
 
-  const now = new Date();
-  const hour = now.getHours();
-  const greeting = hour < 12 ? "Buenos días" : hour < 20 ? "Buenas tardes" : "Buenas noches";
-  const dateStr = now.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Buenos días ☀️" : hour < 20 ? "Buenas tardes 🌤" : "Buenas noches 🌙";
 
   const lunchMeals = menuData?.lunch || menu?.lunch || [];
   const dinnerMeals = menuData?.dinner || menu?.dinner || [];
+  const hasMenu = lunchMeals.length > 0 || dinnerMeals.length > 0;
+  const totalSuggestions = lunchMeals.length + dinnerMeals.length;
 
   const handleGenerateMenu = async () => {
     setGenerating(true);
     try {
-      // Read goals from family settings
       const goals = (family?.settings as any)?.nutritional_goals || [];
       const result = await callAI("generate_briefing", { goals });
-      if (result && (result.lunch || result.dinner)) {
-        setMenuData({ lunch: result.lunch || [], dinner: result.dinner || [] });
-      }
-    } catch {
-      // Error shown via aiError
-    } finally {
-      setGenerating(false);
-    }
+      if (result?.lunch || result?.dinner) setMenuData({ lunch: result.lunch || [], dinner: result.dinner || [] });
+    } catch {} finally { setGenerating(false); }
   };
 
-  const handleShoppingList = async () => {
-    const currentMenu = { lunch: lunchMeals, dinner: dinnerMeals };
-    // Collect missing ingredients from menu
+  const handleShoppingList = () => {
     const missing: string[] = [];
-    [...lunchMeals, ...dinnerMeals].forEach((m) => {
-      if (m.missing_ingredients) missing.push(...m.missing_ingredients);
-    });
+    [...lunchMeals, ...dinnerMeals].forEach(m => { if (m.missing_ingredients) missing.push(...m.missing_ingredients); });
+    const allIngredients = [...lunchMeals, ...dinnerMeals].filter(m => m.recipe?.ingredients).flatMap(m => m.recipe!.ingredients);
 
     openSheet(
-      <div className="space-y-4">
-        <div className="text-center space-y-2">
-          <div className="text-4xl">🛒</div>
-          <h2 className="text-xl font-bold font-[family-name:var(--font-display)] text-[var(--color-text-primary)]">
-            Lista de la compra
-          </h2>
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            Basada en tu menú de hoy
-          </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+        <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: "var(--space-2)", alignItems: "center" }}>
+          <div style={{ width: 48, height: 48, borderRadius: "var(--radius-full)", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <ShoppingCart style={{ width: 24, height: 24, color: "var(--color-accent)" }} />
+          </div>
+          <h2 className="text-display" style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.03em", color: "var(--color-text-primary)" }}>Lista de la compra</h2>
+          <p style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>Basada en tu menú de hoy</p>
         </div>
-
-        {missing.length > 0 ? (
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">Te falta:</h3>
-            <div className="bg-[var(--color-background)] rounded-[var(--radius-md)] p-3 space-y-2">
+        {missing.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--color-accent-warm)" }}>Te falta comprar</h3>
+            <div style={{ background: "var(--color-accent-warm-light)", borderRadius: "var(--radius-md)", padding: "var(--space-3)" }}>
               {missing.map((item, i) => (
-                <label key={i} className="flex items-center gap-3 text-sm cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded accent-[var(--color-primary)]" />
-                  <span className="text-[var(--color-text-primary)]">{item}</span>
+                <label key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0", borderBottom: i < missing.length-1 ? "0.5px solid var(--color-separator)" : "none", cursor: "pointer" }}>
+                  <input type="checkbox" style={{ width: 18, height: 18, accentColor: "var(--color-accent)" }} />
+                  <span style={{ fontSize: 15, color: "var(--color-text-primary)" }}>{item}</span>
                 </label>
               ))}
             </div>
           </div>
-        ) : (
-          <div className="bg-[var(--color-secondary)]/10 rounded-[var(--radius-md)] p-4 text-center">
-            <p className="text-sm text-[var(--color-secondary)] font-medium">
-              ✅ ¡Tienes todo lo necesario en tu despensa!
-            </p>
-          </div>
         )}
-
-        {/* All ingredients from menu recipes */}
-        <div className="space-y-2">
-          <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">Todos los ingredientes del menú:</h3>
-          <div className="bg-[var(--color-background)] rounded-[var(--radius-md)] p-3 space-y-2">
-            {[...lunchMeals, ...dinnerMeals]
-              .filter((m) => m.recipe?.ingredients)
-              .flatMap((m) => m.recipe!.ingredients)
-              .map((ing, i) => (
-                <label key={i} className="flex items-center justify-between text-sm cursor-pointer">
-                  <div className="flex items-center gap-3">
-                    <input type="checkbox" className="w-4 h-4 rounded accent-[var(--color-primary)]" />
-                    <span className="text-[var(--color-text-primary)]">{ing.name}</span>
+        {allIngredients.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-2)" }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)" }}>Todos los ingredientes</h3>
+            <div style={{ background: "var(--color-bg-secondary)", borderRadius: "var(--radius-md)", padding: "var(--space-3)" }}>
+              {allIngredients.map((ing, i) => (
+                <label key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: i < allIngredients.length-1 ? "0.5px solid var(--color-separator)" : "none", cursor: "pointer" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <input type="checkbox" style={{ width: 18, height: 18, accentColor: "var(--color-accent)" }} />
+                    <span style={{ fontSize: 15, color: "var(--color-text-primary)" }}>{ing.name}</span>
                   </div>
-                  <span className="text-[var(--color-text-muted)] text-xs">
-                    {ing.quantity} {ing.unit}
-                  </span>
+                  <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>{ing.quantity} {ing.unit}</span>
                 </label>
               ))}
+            </div>
           </div>
-        </div>
+        )}
+        {missing.length === 0 && allIngredients.length === 0 && (
+          <div style={{ textAlign: "center", padding: "var(--space-8) 0" }}>
+            <p style={{ fontSize: 15, color: "var(--color-accent)", fontWeight: 500 }}>✅ Tienes todo lo necesario</p>
+          </div>
+        )}
       </div>
     );
   };
@@ -292,192 +254,163 @@ export function TodayView() {
   const handleSurprise = async () => {
     try {
       const result = await callAI("surprise_me", {});
-      if (result) {
-        openSheet(
-          <div className="space-y-5">
-            <div className="text-center space-y-2">
-              <div className="text-5xl">✨</div>
-              <h2 className="text-2xl font-bold font-[family-name:var(--font-display)] text-[var(--color-text-primary)]">
-                {result.title || "¡Sorpresa deliciosa!"}
-              </h2>
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                {result.description}
-              </p>
-            </div>
-
-            <div className="flex gap-2 justify-center">
-              {result.protein_g && (
-                <span className="px-3 py-1.5 rounded-[var(--radius-pill)] bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-semibold">
-                  {result.protein_g}g prot
-                </span>
-              )}
-              {result.prep_time_min && (
-                <span className="px-3 py-1.5 rounded-[var(--radius-pill)] bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] text-xs font-semibold">
-                  {result.prep_time_min} min
-                </span>
-              )}
-            </div>
-
-            {result.recipe?.ingredients && (
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm text-[var(--color-text-primary)]">🧾 Ingredientes</h3>
-                <div className="bg-[var(--color-background)] rounded-[var(--radius-md)] p-3 space-y-1.5">
-                  {result.recipe.ingredients.map((ing: any, i: number) => (
-                    <div key={i} className="flex justify-between text-sm">
-                      <span>{ing.name}</span>
-                      <span className="text-[var(--color-text-muted)] text-xs">{ing.quantity} {ing.unit}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {result.recipe?.steps && (
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm text-[var(--color-text-primary)]">👨‍🍳 Pasos</h3>
-                <div className="space-y-3">
-                  {result.recipe.steps.map((step: any, i: number) => (
-                    <div key={i} className="flex gap-3">
-                      <span className="shrink-0 w-7 h-7 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center font-bold text-xs">
-                        {step.order || i + 1}
-                      </span>
-                      <p className="text-sm text-[var(--color-text-secondary)] pt-1">{step.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+      if (result) openSheet(
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-5)" }}>
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontSize: 40 }}>✨</p>
+            <h2 className="text-display" style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.03em", color: "var(--color-text-primary)", marginTop: 8 }}>{result.title}</h2>
+            <p style={{ fontSize: 15, color: "var(--color-text-secondary)", marginTop: 8 }}>{result.description}</p>
           </div>
-        );
-      }
-    } catch {
-      // Error handled in hook
-    }
+          {result.recipe?.ingredients && (
+            <div style={{ background: "var(--color-bg-secondary)", borderRadius: "var(--radius-md)", padding: "var(--space-3)" }}>
+              {result.recipe.ingredients.map((ing: any, i: number) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < result.recipe.ingredients.length-1 ? "0.5px solid var(--color-separator)" : "none" }}>
+                  <span style={{ fontSize: 15 }}>{ing.name}</span>
+                  <span style={{ fontSize: 13, color: "var(--color-text-tertiary)" }}>{ing.quantity} {ing.unit}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {result.recipe?.steps && result.recipe.steps.map((s: any, i: number) => (
+            <div key={i} style={{ display: "flex", gap: 12 }}>
+              <span style={{ flexShrink: 0, width: 28, height: 28, borderRadius: "var(--radius-full)", background: "var(--color-accent-light)", color: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700 }}>{s.order||i+1}</span>
+              <p style={{ fontSize: 15, color: "var(--color-text-secondary)", paddingTop: 4 }}>{s.text}</p>
+            </div>
+          ))}
+        </div>
+      );
+    } catch {}
   };
 
-  const hasMenu = lunchMeals.length > 0 || dinnerMeals.length > 0;
-
   return (
-    <div className="space-y-6 pb-4">
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-1">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">{greeting} 👋</h1>
-        <p className="text-sm text-[var(--color-text-secondary)] capitalize">{dateStr}</p>
-        {family && <p className="text-xs text-[var(--color-text-muted)]">{family.name}</p>}
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+      {/* Hero greeting */}
+      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <h1 className="text-display" style={{ fontSize: 32, fontWeight: 700, letterSpacing: "-0.04em", color: "var(--color-text-primary)", lineHeight: 1.2 }}>
+          {greeting}
+        </h1>
+        {hasMenu && (
+          <p style={{ fontSize: 15, color: "var(--color-text-secondary)", marginTop: 4 }}>
+            SAZÓN encontró {totalSuggestions} ideas para hoy
+          </p>
+        )}
+        {family && <p style={{ fontSize: 13, color: "var(--color-text-tertiary)", marginTop: 2 }}>{family.name}</p>}
       </motion.div>
 
-      {/* Error banner */}
+      {/* Error */}
       {aiError && (
-        <div className="p-3 rounded-[var(--radius-md)] bg-[var(--color-expiry-danger)]/10 border border-[var(--color-expiry-danger)]/20">
-          <p className="text-sm text-[var(--color-expiry-danger)]">{aiError}</p>
+        <div style={{ padding: "var(--space-3)", borderRadius: "var(--radius-md)", background: "var(--color-accent-warm-light)", border: "0.5px solid var(--color-accent-warm)" }}>
+          <p style={{ fontSize: 13, color: "var(--color-accent-warm)" }}>{aiError}</p>
         </div>
       )}
 
-      {/* Generate menu CTA — shown when no menu */}
+      {/* Empty state — generate CTA */}
       {!hasMenu && !generating && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center py-8 space-y-4"
-        >
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[var(--color-primary)]/15 to-[var(--color-secondary)]/15 flex items-center justify-center mx-auto">
-            <Sparkles className="w-10 h-10 text-[var(--color-primary)]" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="font-semibold text-lg text-[var(--color-text-primary)]">
-              ¿Qué comemos hoy?
-            </h3>
-            <p className="text-sm text-[var(--color-text-secondary)] max-w-xs mx-auto">
-              Deja que la IA sugiera un menú personalizado para tu familia
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: "center", padding: "var(--space-12) 0 var(--space-8)", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-5)" }}>
+          {/* SVG illustration — minimal fork/knife */}
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style={{ opacity: 0.6 }}>
+            <circle cx="40" cy="40" r="38" stroke="var(--color-accent)" strokeWidth="1.5" strokeDasharray="4 4" />
+            <path d="M30 25v12c0 2.2 1.8 4 4 4h0c2.2 0 4-1.8 4-4V25M34 41v14M46 25l-2 16h4l-2-16zM46 45v10" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <div>
+            <h3 className="text-display" style={{ fontSize: 24, fontWeight: 600, color: "var(--color-text-primary)", letterSpacing: "-0.03em" }}>¿Qué comemos hoy?</h3>
+            <p style={{ fontSize: 15, color: "var(--color-text-secondary)", marginTop: 8, maxWidth: 260, margin: "8px auto 0" }}>
+              La IA analiza tu despensa y preferencias para sugerirte el menú perfecto
             </p>
           </div>
           <motion.button
-            whileTap={{ scale: 0.96 }}
+            whileTap={{ scale: 0.97 }}
             onClick={handleGenerateMenu}
             disabled={aiLoading}
-            className="h-12 px-8 rounded-[var(--radius-lg)] bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-dark)] text-white font-semibold text-sm inline-flex items-center gap-2 shadow-[var(--shadow-fab)]"
+            style={{
+              height: 54, padding: "0 32px", borderRadius: "var(--radius-md)", border: "none", cursor: "pointer",
+              background: "var(--color-accent)", color: "white", fontSize: 17, fontWeight: 600,
+              display: "inline-flex", alignItems: "center", gap: 8, boxShadow: "var(--shadow-fab)",
+            }}
           >
-            <Sparkles className="w-5 h-5" /> Generar menú con IA
+            <Sparkles style={{ width: 20, height: 20 }} /> Generar menú con IA
           </motion.button>
         </motion.div>
       )}
 
       {/* Generating state */}
       {generating && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-12 space-y-4"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-            className="w-16 h-16 rounded-full border-4 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] mx-auto"
-          />
-          <div className="space-y-1">
-            <p className="font-semibold text-[var(--color-text-primary)]">Cocinando ideas...</p>
-            <p className="text-sm text-[var(--color-text-secondary)]">La IA está analizando tu despensa y preferencias</p>
-          </div>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ textAlign: "center", padding: "var(--space-12) 0", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-4)" }}>
+          <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}>
+            <Loader2 style={{ width: 32, height: 32, color: "var(--color-accent)" }} />
+          </motion.div>
+          <p style={{ fontSize: 17, fontWeight: 600, color: "var(--color-text-primary)" }}>Cocinando ideas...</p>
+          <p style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>Analizando despensa y preferencias</p>
         </motion.div>
       )}
 
       {/* Shopping list banner */}
       {hasMenu && (
         <motion.button
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleShoppingList}
-          className="w-full flex items-center justify-between p-4 rounded-[var(--radius-lg)] bg-[var(--color-secondary)]/10 border border-[var(--color-secondary)]/20 text-left"
+          className="glass-card"
+          style={{
+            width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "var(--space-4)", borderRadius: "var(--radius-lg)", cursor: "pointer", border: "none", textAlign: "left",
+          }}
         >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-[var(--radius-md)] bg-[var(--color-secondary)]/20 flex items-center justify-center">
-              <ShoppingCart className="w-5 h-5 text-[var(--color-secondary)]" />
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "var(--radius-md)", background: "var(--color-accent-light)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <ShoppingCart style={{ width: 20, height: 20, color: "var(--color-accent)" }} />
             </div>
             <div>
-              <p className="text-sm font-semibold text-[var(--color-text-primary)]">Lista de la compra</p>
-              <p className="text-xs text-[var(--color-text-secondary)]">Ver ingredientes del menú</p>
+              <p style={{ fontSize: 15, fontWeight: 600, color: "var(--color-text-primary)" }}>Lista de la compra</p>
+              <p style={{ fontSize: 13, color: "var(--color-text-secondary)" }}>Ver ingredientes del menú</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[var(--color-text-muted)]" />
+          <ChevronRight style={{ width: 20, height: 20, color: "var(--color-text-tertiary)" }} />
         </motion.button>
       )}
 
-      {/* Meal Sections */}
-      {hasMenu && (
-        <>
-          {lunchMeals.length > 0 && <MealSection label={mealLabels.lunch} meals={lunchMeals} />}
-          {dinnerMeals.length > 0 && <MealSection label={mealLabels.dinner} meals={dinnerMeals} />}
+      {/* Meal sections */}
+      {lunchMeals.length > 0 && <MealSection label="☀️ Comida" meals={lunchMeals} />}
+      {dinnerMeals.length > 0 && <MealSection label="🌙 Cena" meals={dinnerMeals} />}
 
-          {/* Regenerate button */}
-          <motion.button
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={handleGenerateMenu}
-            disabled={generating || aiLoading}
-            className="w-full h-11 rounded-[var(--radius-md)] border border-[var(--color-text-muted)]/15 text-sm font-medium text-[var(--color-text-secondary)] flex items-center justify-center gap-2 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${generating ? "animate-spin" : ""}`} /> Regenerar menú
-          </motion.button>
-        </>
+      {/* Regenerate */}
+      {hasMenu && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={handleGenerateMenu}
+          disabled={generating || aiLoading}
+          style={{
+            width: "100%", height: 44, borderRadius: "var(--radius-md)",
+            border: "0.5px solid var(--color-separator)", background: "transparent",
+            fontSize: 15, fontWeight: 500, color: "var(--color-text-secondary)",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer",
+            opacity: generating ? 0.5 : 1,
+          }}
+        >
+          <RefreshCw style={{ width: 16, height: 16 }} className={generating ? "animate-spin" : ""} /> Regenerar menú
+        </motion.button>
       )}
 
       {/* Surprise FAB */}
       <motion.button
-        whileTap={{ scale: 0.92 }}
+        whileTap={{ scale: 0.9 }}
         whileHover={{ scale: 1.05 }}
         onClick={handleSurprise}
         disabled={aiLoading}
-        className="fixed bottom-24 right-5 md:bottom-8 md:right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dark)] text-white shadow-[var(--shadow-fab)] flex items-center justify-center disabled:opacity-60"
+        style={{
+          position: "fixed", bottom: "calc(var(--tab-bar-total) + var(--space-4))", right: "var(--space-5)",
+          zIndex: 900, width: 56, height: 56, borderRadius: "var(--radius-full)",
+          background: "var(--color-accent)", color: "white", border: "none", cursor: "pointer",
+          boxShadow: "var(--shadow-fab)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          opacity: aiLoading ? 0.5 : 1,
+        }}
         aria-label="Sorpréndeme"
       >
-        {aiLoading ? (
-          <Loader2 className="w-5 h-5 animate-spin" />
-        ) : (
-          <Wand2 className="w-6 h-6" />
-        )}
+        {aiLoading ? <Loader2 style={{ width: 22, height: 22 }} className="animate-spin" /> : <Wand2 style={{ width: 24, height: 24 }} />}
       </motion.button>
     </div>
   );
