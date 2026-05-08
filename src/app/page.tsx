@@ -67,7 +67,7 @@ function AppShellContent() {
 
       {/* Main content — safe-area top padding for iOS PWA */}
       <main className="md:ml-[240px] pb-24 md:pb-8">
-        <div className="max-w-2xl mx-auto px-5 pt-[max(env(safe-area-inset-top,0px),24px)] md:pt-8">
+        <div className="max-w-2xl mx-auto px-5 pt-[max(var(--sat),24px)] md:pt-8">
           <AnimatePresence mode="wait" custom={currentIndex}>
             <motion.div
               key={activeTab}
