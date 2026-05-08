@@ -1,65 +1,111 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { motion, AnimatePresence } from "framer-motion";
+import { useUIStore } from "@/lib/stores/ui-store";
+import { TabBar } from "@/components/layout/tab-bar";
+import { Sidebar } from "@/components/layout/sidebar";
+import { SheetModal } from "@/components/ui/sheet-modal";
+import { TodayView } from "@/components/today/today-view";
+import { PantryView } from "@/components/pantry/pantry-view";
+import { RecipesView } from "@/components/recipes/recipes-view";
+import { FamilyView } from "@/components/family/family-view";
+import { useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
+
+const TAB_COMPONENTS = {
+  hoy: TodayView,
+  despensa: PantryView,
+  recetario: RecipesView,
+  familia: FamilyView,
+} as const;
+
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 80 : -80,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? 80 : -80,
+    opacity: 0,
+  }),
+};
+
+function AppShellContent() {
+  const { activeTab, setActiveTab } = useUIStore();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Sync tab from URL on mount
+  useEffect(() => {
+    const tabParam = searchParams.get("tab");
+    if (tabParam && tabParam in TAB_COMPONENTS) {
+      setActiveTab(tabParam as keyof typeof TAB_COMPONENTS);
+    }
+  }, [searchParams, setActiveTab]);
+
+  // Update URL when tab changes
+  useEffect(() => {
+    const current = new URLSearchParams(window.location.search);
+    if (current.get("tab") !== activeTab) {
+      router.replace(`/?tab=${activeTab}`, { scroll: false });
+    }
+  }, [activeTab, router]);
+
+  const tabOrder = ["hoy", "despensa", "recetario", "familia"];
+  const currentIndex = tabOrder.indexOf(activeTab);
+  const ActiveComponent = TAB_COMPONENTS[activeTab];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-[100dvh] bg-[var(--color-background)]">
+      {/* Desktop sidebar */}
+      <Sidebar />
+
+      {/* Main content — safe-area top padding for iOS PWA */}
+      <main className="md:ml-[240px] pb-24 md:pb-8">
+        <div className="max-w-2xl mx-auto px-5 pt-[max(env(safe-area-inset-top,0px),24px)] md:pt-8">
+          <AnimatePresence mode="wait" custom={currentIndex}>
+            <motion.div
+              key={activeTab}
+              custom={currentIndex}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+                duration: 0.25,
+              }}
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+              <ActiveComponent />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
+
+      {/* Mobile tab bar */}
+      <TabBar />
+
+      {/* Sheet modal (global) */}
+      <SheetModal />
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[100dvh] bg-[var(--color-background)] flex items-center justify-center">
+        <div className="w-10 h-10 border-3 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
+      </div>
+    }>
+      <AppShellContent />
+    </Suspense>
   );
 }

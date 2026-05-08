@@ -1,26 +1,149 @@
 @import "tailwindcss";
 
+@theme {
+  /* SAZÓN Color System — only colors go in @theme to extend Tailwind */
+  --color-terracotta: #E8603C;
+  --color-terracotta-light: #F28B6E;
+  --color-terracotta-dark: #C94E2D;
+  --color-sage: #4A7C59;
+  --color-sage-light: #6B9E7A;
+  --color-sage-dark: #3A6247;
+  --color-cream: #FDF6EC;
+  --color-cream-dark: #F5EBD8;
+  --color-charcoal: #1C1C1C;
+  --color-charcoal-light: #2D2D2D;
+  --color-primary: #E8603C;
+  --color-primary-light: #F28B6E;
+  --color-primary-dark: #C94E2D;
+  --color-secondary: #4A7C59;
+  --color-secondary-light: #6B9E7A;
+  --color-secondary-dark: #3A6247;
+  --color-background: #FDF6EC;
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFFFFF;
+  --color-text-primary: #1C1C1C;
+  --color-text-secondary: #6B7280;
+  --color-text-muted: #9CA3AF;
+  --color-expiry-ok: #22C55E;
+  --color-expiry-warn: #F59E0B;
+  --color-expiry-danger: #EF4444;
+}
+
+/* Custom design tokens — outside @theme to avoid overriding Tailwind's built-in spacing/radius/shadow */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-sheet: 0 -4px 24px rgba(0,0,0,0.15);
+  --shadow-fab: 0 4px 16px rgba(232,96,60,0.4);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    --color-background: #121212;
+    --color-surface: #1E1E1E;
+    --color-surface-elevated: #2A2A2A;
+    --color-text-primary: #F5F5F5;
+    --color-text-secondary: #A0A0A0;
+    --color-text-muted: #6B6B6B;
+    --color-cream: #121212;
+    --color-cream-dark: #1A1A1A;
+    --shadow-card: 0 2px 12px rgba(0,0,0,0.3);
+    --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.4);
+    --shadow-sheet: 0 -4px 24px rgba(0,0,0,0.5);
   }
 }
 
+[data-theme="dark"] {
+  --color-background: #121212;
+  --color-surface: #1E1E1E;
+  --color-surface-elevated: #2A2A2A;
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #A0A0A0;
+  --color-text-muted: #6B6B6B;
+  --color-cream: #121212;
+  --color-cream-dark: #1A1A1A;
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.3);
+  --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-sheet: 0 -4px 24px rgba(0,0,0,0.5);
+}
+
+/* Base styles */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior-y: none;
+}
+
+/* iOS safe areas */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Skeleton shimmer effect */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, 
+    var(--color-surface) 25%, 
+    var(--color-surface-elevated) 50%, 
+    var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Touch-friendly tap target */
+.tap-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--color-primary);
+  color: white;
 }
